@@ -25,22 +25,15 @@ module.exports = {
     // Ditto as above.
 
     get: function () {
-      // db.connect();
       db.query('SELECT * FROM users', (err, rows) => {
-        // if (err) { console.log(err); }
         cb(err, rows);
       });
     },
     post: function (username, cb) {
-      // db.connect();
-      // console.log(username);
       db.query(`INSERT INTO users (username) VALUES ('${username}')`, (error, results) => {
-        // console.log(results, 'THIS IS RESULTS');
         cb(error, results);
 
       });
-      // console.log('ENDING CONNECTION HERE');
-      // db.end();
     }
   }
 };

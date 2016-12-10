@@ -5,10 +5,13 @@ module.exports = {
     get: function (req, res) {
       models.messages.get((err, data) => {
         if (err) { console.log(err); }
-        res.status(200).send(data);
+        console.log(data[0].body, 'THIS IS ONE PIECE OF DATA <=====================');
+        // console.log(data, 'THIS IS DATA <=================')
+        res.json(data);
       });
     }, // a function which handles a get request for all messages
     post: function (req, res) {
+      console.log(req.body, 'thisis req body in post');
       models.messages.post(req.body.message, req.body.roomname, req.body.username, (error, result) => {
 
         if (error) { console.log('MESSAGE POST ERROR', error); }
@@ -21,7 +24,7 @@ module.exports = {
     // Ditto as above
     get: function (req, res) {
       models.users.get();
-      res.sendStatus(200);
+      res.json(data);
     },
 
     post: function (req, res) {

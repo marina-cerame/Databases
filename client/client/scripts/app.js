@@ -3,7 +3,7 @@ var app = {
 
   //TODO: The current 'handleUsernameClick' function just toggles the class 'friend'
   //to all messages sent by the user
-  server: 'http://127.0.0.1:8080',
+  server: 'http://localhost:3000/classes/messages',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -39,12 +39,15 @@ var app = {
     app.startSpinner();
 
     // POST the message to the server
+    console.log(message, 'THIS IS MESSAGE');
     $.ajax({
       url: app.server,
       type: 'POST',
+      contentType: 'application/json',
       data: JSON.stringify(message),
       success: function (data) {
         // Clear messages input
+        console.log(data, 'THIS IS DATA');
         app.$message.val('');
 
         // Trigger a fetch to update the messages, pass true to animate
@@ -63,25 +66,29 @@ var app = {
       // data: { order: '-createdAt' },
       contentType: 'application/json',
       success: function(data) {
+        console.log(data, '<================ tHIS IS DATA');
         // Don't bother if we have nothing to work with
-        if (!data.results || !data.results.length) { return; }
+        if (!data || !data.length) {
+          app.stopSpinner();
+          return;
+        }
 
         // Store messages for caching later
-        app.messages = data.results;
+        app.messages = data;
 
         // Get the last message
-        var mostRecentMessage = data.results[data.results.length - 1];
+        var mostRecentMessage = data[data.length - 1];
 
         // Only bother updating the DOM if we have a new message
-        if (mostRecentMessage.objectId !== app.lastMessageId) {
+        if (mostRecentMessage.id !== app.lastMessageId) {
           // Update the UI with the fetched rooms
-          app.renderRoomList(data.results);
+          app.renderRoomList(data);
 
           // Update the UI with the fetched messages
-          app.renderMessages(data.results, animate);
+          app.renderMessages(data, animate);
 
           // Store the ID of the most recent message
-          app.lastMessageId = mostRecentMessage.objectId;
+          app.lastMessageId = mostRecentMessage.id;
         }
       },
       error: function(error) {
@@ -102,8 +109,8 @@ var app = {
       // Add all fetched messages that are in our current room
       messages
         .filter(function(message) {
-          return message.roomname === app.roomname ||
-                 app.roomname === 'lobby' && !message.roomname;
+          return message.room === app.roomname ||
+                 app.roomname === 'lobby' && !message.room;
         })
         .forEach(app.renderMessage);
     }
@@ -120,7 +127,7 @@ var app = {
     if (messages) {
       var rooms = {};
       messages.forEach(function(message) {
-        var roomname = message.roomname;
+        var roomname = message.room;
         if (roomname && !rooms[roomname]) {
           // Add the room to the select menu
           app.renderRoom(roomname);
@@ -144,8 +151,10 @@ var app = {
   },
 
   renderMessage: function(message) {
-    if (!message.roomname) {
-      message.roomname = 'lobby';
+    console.log('RENDERING MESSAGES');
+    console.log(message);
+    if (!message.room) {
+      message.room = 'lobby';
     }
 
     // Create a div to hold the chats
@@ -154,15 +163,15 @@ var app = {
     // Add in the message data using DOM methods to avoid XSS
     // Store the username in the element's data attribute
     var $username = $('<span class="username"/>');
-    $username.text(message.username + ': ').attr('data-roomname', message.roomname).attr('data-username', message.username).appendTo($chat);
+    $username.text(message.user + ': ').attr('data-roomname', message.room).attr('data-username', message.user).appendTo($chat);
 
     // Add the friend class
-    if (app.friends[message.username] === true) {
+    if (app.friends[message.user] === true) {
       $username.addClass('friend');
     }
 
     var $message = $('<br><span/>');
-    $message.text(message.message).appendTo($chat);
+    $message.text(message.body).appendTo($chat);
 
     // Add the message to the UI
     app.$chats.append($chat);
@@ -213,9 +222,9 @@ var app = {
 
   handleSubmit: function(event) {
     var message = {
-      username: app.username,
-      message: app.$message.val(),
-      roomname: app.roomname || 'lobby'
+      username: `${app.username}`,
+      message: `${app.$message.val()}`,
+      roomname: "lobby"
     };
 
     app.send(message);

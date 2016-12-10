@@ -5,7 +5,6 @@ module.exports = {
     get: function (req, res) {
     }, // a function which handles a get request for all messages
     post: function (req, res) {
-      // console.log(req, '==================================REQUEST');
       models.messages.post(req.body.message, req.body.roomname, req.body.username, (error, result) => {
 
         if (error) { console.log('MESSAGE POST ERROR', error); }
@@ -19,7 +18,6 @@ module.exports = {
     // Ditto as above
     get: function (req, res) {},
     post: function (req, res) {
-      // console.log(req, '==================================REQUEST');
       models.users.post(req.body.username, (error, result) => {
         if (error) { console.log('USERS POST ERROR', error); }
         console.log('INSIDE CONTROLLER');

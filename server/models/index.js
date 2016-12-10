@@ -17,10 +17,12 @@ module.exports = {
         cb(error, results);
       });
     }
+
   },
 
   users: {
     // Ditto as above.
+
     get: function () {
       db.connect();
       db.query('SELECT * FROM users', (err, rows, fields) => {

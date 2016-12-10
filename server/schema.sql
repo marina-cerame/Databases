@@ -1,8 +1,11 @@
+
 DROP DATABASE IF EXISTS chat;
+
 
 CREATE DATABASE chat;
 
 USE chat;
+
 
 CREATE TABLE users (
   id integer NOT NULL AUTO_INCREMENT,
@@ -24,5 +27,6 @@ CREATE TABLE messages (
 
 
 /*  Execute this file from the command line by typing:
+
  *    mysql -u root - p <server/schema.sql
  *  to create the database and the tables.*/

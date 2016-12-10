@@ -13,11 +13,12 @@ module.exports = {
         res.sendStatus(201);
       });
     } // a function which handles posting a message to the database
-  },
+},
 
   users: {
     // Ditto as above
     get: function (req, res) {},
+
     post: function (req, res) {
       // console.log(req, '==================================REQUEST');
       models.users.post(req.body.username, (error, result) => {

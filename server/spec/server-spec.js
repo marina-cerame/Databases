@@ -22,7 +22,8 @@ describe('Persistent Node Chat Server', function() {
 
     /* Empty the db table before each test so that multiple tests
      * (or repeated runs of the tests) won't screw each other up: */
-    dbConnection.query('truncate ' + tablename, done);
+    dbConnection.query('truncate ' + tablename);
+    dbConnection.query('truncate users', done);
 
     // dbConnection.query('truncate ' + 'users', done);
 
@@ -95,6 +96,53 @@ describe('Persistent Node Chat Server', function() {
         expect(messageLog[0].body).to.equal('Men like you can never change!');
         expect(messageLog[0].room).to.equal('main');
         done();
+      });
+    });
+  });
+
+  it('Should return all users from the database', done => {
+
+    request({
+      method: 'POST',
+      uri: 'http://localhost:3000/classes/users',
+      json: { username: 'Captain Awesome'}
+    });
+
+    request('http://localhost:3000/classes/users', (error, response, body) => {
+      if (error) {
+        console.log('ERROR IN TEST', error);
+      }
+      console.log(response.body, '<================= THIS IS BODY');
+      var user = JSON.parse(body);
+      expect(user[0].username).to.equal('Captain Awesome');
+      done();
+    });
+  });
+
+  it('Should return appropriate status codes', done => {
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/users',
+      json: { username: 'Valjean' }
+    }, function () {
+
+      // Post a message to the node chat server:
+      request({
+        method: 'POST',
+        uri: 'http://127.0.0.1:3000/classes/messages',
+        json: {
+          username: 'Valjean',
+          message: 'In mercys name, three days is all I need.',
+          roomname: 'Hello'
+        }
+      }, function () {
+        request('http://localhost:3000/classes/users', (error, response, body) => {
+          if (error) {
+            console.log('ERROR IN TEST', error);
+          }
+          expect(response.statusCode).to.equal(200);
+          done();
+        });
       });
     });
   });
